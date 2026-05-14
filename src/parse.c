@@ -1,20 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/* parse.c                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: glieuw-a <glieuw-a@student.codam.nl>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/14 12:00:00 by glieuw-a        #+#    #+#               */
+/*   Updated: 2026/05/14 12:00:00 by glieuw-a       ###   ########.fr         */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion.h"
-
-static int	is_uint_str(const char *s)
-{
-	int	i;
-
-	if (!s || !s[0])
-		return (0);
-	i = 0;
-	while (s[i])
-	{
-		if (s[i] < '0' || s[i] > '9')
-			return (0);
-		i++;
-	}
-	return (1);
-}
 
 static int	parse_scheduler(const char *s, int *out)
 {
@@ -47,12 +43,20 @@ static int	validate(t_args *args)
 static int	all_numeric(char **argv)
 {
 	int	i;
+	int	j;
 
 	i = 1;
 	while (i <= 7)
 	{
-		if (!is_uint_str(argv[i]))
+		if (!argv[i] || !argv[i][0])
 			return (0);
+		j = 0;
+		while (argv[i][j])
+		{
+			if (argv[i][j] < '0' || argv[i][j] > '9')
+				return (0);
+			j++;
+		}
 		i++;
 	}
 	return (1);

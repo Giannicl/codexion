@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/* log.c                                                :+:      :+:    :+:   */
+/* coder_state.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: glieuw-a <glieuw-a@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,12 +12,14 @@
 
 #include "codexion.h"
 
-void	log_event(t_sim *sim, int id, const char *event)
+void	coder_debug(t_coder *coder)
 {
-	long	ts;
+	log_event(coder->sim, coder->id, "is debugging");
+	time_sleep_ms(coder->sim->args.debug_ms);
+}
 
-	ts = time_now_ms() - sim->start_ms;
-	pthread_mutex_lock(&sim->log_mutex);
-	printf("%ld %d %s\n", ts, id, event);
-	pthread_mutex_unlock(&sim->log_mutex);
+void	coder_refactor(t_coder *coder)
+{
+	log_event(coder->sim, coder->id, "is refactoring");
+	time_sleep_ms(coder->sim->args.refactor_ms);
 }

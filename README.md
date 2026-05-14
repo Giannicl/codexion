@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by gzoldyck.*
+*This project has been created as part of the 42 curriculum by glieuw-a.*
 
 ---
 
@@ -65,23 +65,23 @@ All output is protected by a single `log_mutex` (`pthread_mutex_t`). Only one th
 
 | Mutex | Protects |
 |---|---|
-| `dongle.mutex` | Each dongle's state: `available`, `available_at`, and wait queue |
+| `dongle.mutex` | Each dongle's state: `available`, `ready_at`, and wait queue |
 | `sim.stop_mutex` | The global `stop` flag read/written by all threads |
 | `sim.log_mutex` | Stdout — prevents interleaved log lines |
 
 ### Condition variables
 
-Each dongle has a `pthread_cond_t`. When a coder cannot take a dongle (unavailable, cooldown active, or not its turn in the queue), it blocks on `pthread_cond_wait` or `pthread_cond_timedwait` inside that dongle's mutex. `pthread_cond_broadcast` is called on release and on `set_stop`, waking all waiters.
+Each dongle has a `pthread_cond_t`. When a coder cannot take a dongle (unavailable, cooldown active, or not its turn in the queue), it blocks on `pthread_cond_wait` or `pthread_cond_timedwait` inside that dongle's mutex. `pthread_cond_broadcast` is called on release and on `sim_stop`, waking all waiters.
 
-`pthread_cond_timedwait` is used specifically when a cooldown is active: the timeout is set to `available_at` (the exact ms timestamp when the dongle becomes available again). This eliminates the missed-wakeup problem that would occur if the broadcast fires during cooldown and no one re-broadcasts when the cooldown expires.
+`pthread_cond_timedwait` is used specifically when a cooldown is active: the timeout is set to `ready_at` (the exact ms timestamp when the dongle becomes available again). This eliminates the missed-wakeup problem that would occur if the broadcast fires during cooldown and no one re-broadcasts when the cooldown expires.
 
 ### Race condition prevention examples
 
 **Dongle state:** The queue and `available` flag are only ever read or written while holding `dongle.mutex`. A coder checks availability and registers its intent atomically — no coder can take a dongle that another coder has already claimed.
 
-**Stop flag:** `set_stop` locks `stop_mutex`, sets `stop = 1`, and unlocks before broadcasting. Any thread calling `is_stopped` will either see `stop = 0` (before the lock) or `stop = 1` (after). There is no window where the flag is partially written.
+**Stop flag:** `sim_stop` locks `stop_mutex`, sets `stop = 1`, and unlocks before broadcasting. Any thread calling `sim_stopped` will either see `stop = 0` (before the lock) or `stop = 1` (after). There is no window where the flag is partially written.
 
-**Thread-safe communication (coders ↔ monitor):** The monitor reads `last_compile_start` from coder structs. Coder threads write it with `do_compile`. Since `last_compile_start` is a single `long` and only moves forward in time, a stale read by the monitor means it detects burnout slightly later than the exact moment — still within the 10 ms tolerance guaranteed by the 500 µs polling interval.
+**Thread-safe communication (coders ↔ monitor):** The monitor reads `last_compile_ms` from coder structs. Coder threads write it in `coder_compile`. Since `last_compile_start` is a single `long` and only moves forward in time, a stale read by the monitor means it detects burnout slightly later than the exact moment — still within the 10 ms tolerance guaranteed by the 500 µs polling interval.
 
 ---
 

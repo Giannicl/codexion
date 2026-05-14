@@ -10,10 +10,13 @@ SRCS	= $(SRCDIR)/main.c \
 		  $(SRCDIR)/parse.c \
 		  $(SRCDIR)/simulation.c \
 		  $(SRCDIR)/coder.c \
+		  $(SRCDIR)/coder_state.c \
 		  $(SRCDIR)/dongle.c \
 		  $(SRCDIR)/heap.c \
+		  $(SRCDIR)/heap_sift.c \
 		  $(SRCDIR)/monitor.c \
 		  $(SRCDIR)/log.c \
+		  $(SRCDIR)/run.c \
 		  $(SRCDIR)/utils.c
 
 OBJS	= $(SRCS:.c=.o)

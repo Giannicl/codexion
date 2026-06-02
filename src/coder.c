@@ -74,11 +74,15 @@ static void	release_dongles(t_coder *coder)
 
 static void	coder_compile(t_coder *coder)
 {
+	pthread_mutex_lock(&coder->mutex);
 	coder->last_compile_ms = time_now_ms();
 	coder->deadline_ms = coder->last_compile_ms + coder->sim->args.burnout_ms;
+	pthread_mutex_unlock(&coder->mutex);
 	log_event(coder->sim, coder->id, "is compiling");
 	time_sleep_ms(coder->sim->args.compile_ms);
+	pthread_mutex_lock(&coder->mutex);
 	coder->n_compiled++;
+	pthread_mutex_unlock(&coder->mutex);
 }
 
 void	*coder_routine(void *arg)

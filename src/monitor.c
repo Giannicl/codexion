@@ -14,9 +14,16 @@
 
 static int	coder_burned_out(t_sim *sim, t_coder *coder)
 {
-	if (coder->n_compiled >= sim->args.n_compiles)
+	int		n;
+	long	last;
+
+	pthread_mutex_lock(&coder->mutex);
+	n = coder->n_compiled;
+	last = coder->last_compile_ms;
+	pthread_mutex_unlock(&coder->mutex);
+	if (n >= sim->args.n_compiles)
 		return (0);
-	return (time_now_ms() - coder->last_compile_ms > sim->args.burnout_ms);
+	return (time_now_ms() - last > sim->args.burnout_ms);
 }
 
 static int	check_burnouts(t_sim *sim, t_coder *coders)
@@ -39,11 +46,15 @@ static int	check_burnouts(t_sim *sim, t_coder *coders)
 static int	all_compiled(t_sim *sim, t_coder *coders)
 {
 	int	i;
+	int	n;
 
 	i = 0;
 	while (i < sim->args.n_coders)
 	{
-		if (coders[i].n_compiled < sim->args.n_compiles)
+		pthread_mutex_lock(&coders[i].mutex);
+		n = coders[i].n_compiled;
+		pthread_mutex_unlock(&coders[i].mutex);
+		if (n < sim->args.n_compiles)
 			return (0);
 		i++;
 	}

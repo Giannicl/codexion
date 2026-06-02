@@ -28,6 +28,13 @@ static t_coder	*init_coders(t_sim *sim)
 		coders[i].last_compile_ms = sim->start_ms;
 		coders[i].deadline_ms = sim->start_ms + sim->args.burnout_ms;
 		coders[i].sim = sim;
+		if (pthread_mutex_init(&coders[i].mutex, NULL) != 0)
+		{
+			while (i-- > 0)
+				pthread_mutex_destroy(&coders[i].mutex);
+			free(coders);
+			return (NULL);
+		}
 		i++;
 	}
 	return (coders);
@@ -35,12 +42,17 @@ static t_coder	*init_coders(t_sim *sim)
 
 static int	alloc_resources(t_sim *sim, t_coder **coders, pthread_t **threads)
 {
+	int	i;
+
 	*coders = init_coders(sim);
 	if (!*coders)
 		return (0);
 	*threads = malloc(sizeof(pthread_t) * sim->args.n_coders);
 	if (!*threads)
 	{
+		i = 0;
+		while (i < sim->args.n_coders)
+			pthread_mutex_destroy(&(*coders)[i++].mutex);
 		free(*coders);
 		return (0);
 	}
@@ -49,7 +61,12 @@ static int	alloc_resources(t_sim *sim, t_coder **coders, pthread_t **threads)
 
 static void	free_resources(t_coder *coders, pthread_t *threads, t_sim *sim)
 {
+	int	i;
+
 	free(threads);
+	i = 0;
+	while (i < sim->args.n_coders)
+		pthread_mutex_destroy(&coders[i++].mutex);
 	free(coders);
 	sim_cleanup(sim);
 }

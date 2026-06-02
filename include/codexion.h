@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/* codexion.h                                           :+:      :+:    :+:   */
+/*   codexion.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: glieuw-a <glieuw-a@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: glieuw-a <glieuw-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/14 12:00:00 by glieuw-a        #+#    #+#               */
-/*   Updated: 2026/05/14 12:00:00 by glieuw-a       ###   ########.fr         */
+/*   Created: 2026/05/14 12:00:00 by glieuw-a          #+#    #+#             */
+/*   Updated: 2026/05/27 10:49:07 by glieuw-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,11 +63,12 @@ typedef struct s_dongle
 
 typedef struct s_coder
 {
-	int		id;
-	int		n_compiled;
-	long	last_compile_ms;
-	long	deadline_ms;
-	t_sim	*sim;
+	int				id;
+	int				n_compiled;
+	long			last_compile_ms;
+	long			deadline_ms;
+	t_sim			*sim;
+	pthread_mutex_t	mutex;
 }	t_coder;
 
 struct s_sim

@@ -1,3 +1,5 @@
+# Codexion
+
 *This project has been created as part of the 42 curriculum by glieuw-a.*
 
 ---
@@ -23,18 +25,47 @@ make
            time_to_refactor number_of_compiles_required dongle_cooldown scheduler
 ```
 
-All time values are in milliseconds. `scheduler` must be `fifo` or `edf`.
+All arguments are mandatory.
 
-**Example:**
+| Argument | Description |
+|---|---|
+| `number_of_coders` | Number of coders (and dongles) |
+| `time_to_burnout` | Milliseconds before a coder burns out without compiling |
+| `time_to_compile` | Milliseconds to compile (requires two dongles) |
+| `time_to_debug` | Milliseconds to debug |
+| `time_to_refactor` | Milliseconds to refactor |
+| `number_of_compiles_required` | Stop when all coders reach this compile count |
+| `dongle_cooldown` | Milliseconds a dongle is unavailable after release |
+| `scheduler` | `fifo` (First In First Out) or `edf` (Earliest Deadline First) |
+
+**Examples:**
+```bash
+# normal run
+./codexion 5 800 200 200 200 3 50 fifo
+./codexion 5 800 200 200 200 3 50 edf
+
+# single coder (no deadlock possible)
+./codexion 1 800 200 200 200 3 50 fifo
+
+# burnout scenario (compile time exceeds burnout window)
+./codexion 5 200 800 200 200 3 50 fifo
 ```
-./codexion 4 800 200 100 100 5 50 fifo
-./codexion 4 800 200 100 100 5 50 edf
+
+**Memory check:**
+```bash
+valgrind --leak-check=full ./codexion 2 800 200 200 200 3 50 fifo
+```
+
+**ThreadSanitizer:**
+```bash
+make san
+./codexion_san <args>
 ```
 
 **Clean:**
 ```
 make clean    # remove object files
-make fclean   # remove object files and binary
+make fclean   # remove object files and binaries
 make re       # full rebuild
 ```
 

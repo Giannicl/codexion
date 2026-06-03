@@ -32,9 +32,19 @@ $(NAME): $(OBJS)
 clean:
 	rm -f $(OBJS)
 
+san: fclean
+	$(CC) $(CFLAGS) -fsanitize=thread $(SRCS) -I$(INCDIR) -o $(NAME)_san
+
+run: $(NAME)
+	-@./$(NAME) 1 800 200 200 200 3 50 fifo
+	-@./$(NAME) 5 800 200 200 200 3 50 fifo
+	-@./$(NAME) 5 800 200 200 200 3 50 edf
+	-@./$(NAME) 5 200 800 200 200 3 50 fifo
+	-@./$(NAME) 2 800 200 200 200 3 50 fifo
+
 fclean: clean
-	rm -f $(NAME)
+	rm -f $(NAME) $(NAME)_san
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re san run
